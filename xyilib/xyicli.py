@@ -63,7 +63,7 @@ def do_get_param(c, args):
 
 
 def do_set_param(c, args):
-    c.get_param(args.param_name, args.param_value)
+    c.set_param(args.param_name, args.param_value)
 
 
 def do_get_choices(c, args):
