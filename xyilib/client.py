@@ -50,7 +50,8 @@ class Camera(object):
 
     def do_auth(self):
         log.debug('Trying to authenticate to %s', self.address)
-        resp = self._send_cmd({'msg_id': consts.YI_MSG_AUTH, 'token': 0})
+        resp = self._send_cmd(
+            {'msg_id': consts.YI_MSG_CREATE_TOKEN, 'token': 0})
         log.info('do_auth: got {}'.format(resp))
         self.token = resp['param']
 
