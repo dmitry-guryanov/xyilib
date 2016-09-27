@@ -48,7 +48,7 @@ class Camera(object):
 
         try:
             self.do_auth()
-        except:
+        except Exception:
             self.close()
             raise
 
@@ -116,13 +116,17 @@ class Camera(object):
         return ret
 
     def get_param(self, param_name):
-        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_PARAM, 'type': param_name})
+        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_PARAM,
+                               'type': param_name})
         return resp['param']
 
     def set_param(self, param_name, param_value):
-        resp = self._send_cmd({'msg_id': consts.YI_MSG_SET_PARAM, 'type': param_name, 'param': param_value})
+        resp = self._send_cmd({'msg_id': consts.YI_MSG_SET_PARAM,
+                               'type': param_name,
+                               'param': param_value})
         return resp['param']
 
     def get_choices(self, param_name):
-        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_PARAM_CHOICES, 'param': param_name})
+        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_PARAM_CHOICES,
+                               'param': param_name})
         return {'permission': resp['permission'], 'choices': resp['options']}
