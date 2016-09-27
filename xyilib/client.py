@@ -54,20 +54,20 @@ class Camera(object):
 
     def do_auth(self):
         log.debug('Trying to authenticate to %s', self.address)
-        resp = self._send_cmd(
-            {'msg_id': consts.YI_MSG_CREATE_TOKEN, 'token': 0})
+        resp = self._send_cmd(consts.YI_MSG_CREATE_TOKEN, token=0)
         log.info('do_auth: got {}'.format(resp))
         self.token = resp['param']
 
-    def _send_cmd(self, obj):
-        if self.token:
-            obj['token'] = self.token
+    def _send_cmd(self, msg_id, **params):
+        if self.token and 'token' not in params:
+            params['token'] = self.token
+        params['msg_id'] = msg_id
 
-        log.info('Send object: %r', obj)
-        s = json.dumps(obj)
+        log.info('Send object: %r', params)
+        s = json.dumps(params)
         self.sock.send(s + '\n')
 
-        cv, q = self.msgs.setdefault(obj['msg_id'],
+        cv, q = self.msgs.setdefault(msg_id,
                                      (threading.Condition(), deque()))
         with cv:
             if not q:
@@ -102,11 +102,11 @@ class Camera(object):
         self.thread.join()
 
     def get_clock(self):
-        resp = self._send_cmd({'type': 'camera_clock', 'msg_id': 1})
+        resp = self._send_cmd(consts.YI_MSG_GET_PARAM, type='camera_clock')
         return datetime.strptime(resp['param'], '%Y-%m-%d %H:%M:%S')
 
     def get_params(self):
-        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_ALL_PARAMS})
+        resp = self._send_cmd(consts.YI_MSG_GET_ALL_PARAMS)
         return resp['param']
 
     def get_params_as_dict(self):
@@ -116,17 +116,17 @@ class Camera(object):
         return ret
 
     def get_param(self, param_name):
-        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_PARAM,
-                               'type': param_name})
+        resp = self._send_cmd(consts.YI_MSG_GET_PARAM,
+                              type=param_name)
         return resp['param']
 
     def set_param(self, param_name, param_value):
-        resp = self._send_cmd({'msg_id': consts.YI_MSG_SET_PARAM,
-                               'type': param_name,
-                               'param': param_value})
+        resp = self._send_cmd(consts.YI_MSG_SET_PARAM,
+                              type=param_name,
+                              param=param_value)
         return resp['param']
 
     def get_choices(self, param_name):
-        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_PARAM_CHOICES,
-                               'param': param_name})
+        resp = self._send_cmd(consts.YI_MSG_GET_PARAM_CHOICES,
+                              param=param_name)
         return {'permission': resp['permission'], 'choices': resp['options']}
