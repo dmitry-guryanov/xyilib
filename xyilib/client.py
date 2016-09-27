@@ -46,7 +46,11 @@ class Camera(object):
         self.thread.start()
         self.token = None
 
-        self.do_auth()
+        try:
+            self.do_auth()
+        except:
+            self.close()
+            raise
 
     def do_auth(self):
         log.debug('Trying to authenticate to %s', self.address)
