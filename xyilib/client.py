@@ -104,3 +104,25 @@ class Camera(object):
     def get_clock(self):
         resp = self._send_cmd({'type': 'camera_clock', 'msg_id': 1})
         return datetime.strptime(resp['param'], '%Y-%m-%d %H:%M:%S')
+
+    def get_params(self):
+        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_ALL_PARAMS})
+        return resp['param']
+
+    def get_params_as_dict(self):
+        params = self.get_params()
+        ret = {}
+        [ret.update(d) for d in params]
+        return ret
+
+    def get_param(self, param_name):
+        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_PARAM, 'type': param_name})
+        return resp['param']
+
+    def set_param(self, param_name, param_value):
+        resp = self._send_cmd({'msg_id': consts.YI_MSG_SET_PARAM, 'type': param_name, 'param': param_value})
+        return resp['param']
+
+    def get_choices(self, param_name):
+        resp = self._send_cmd({'msg_id': consts.YI_MSG_GET_PARAM_CHOICES, 'param': param_name})
+        return {'permission': resp['permission'], 'choices': resp['options']}

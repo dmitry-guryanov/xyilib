@@ -50,6 +50,30 @@ def do_shell(c, args):
         print(resp)
 
 
+def do_get_all_params(c, args):
+    params = c.get_params()
+    for d in params:
+        for k, v in d.items():
+            print("{}: {}".format(k, v))
+
+
+def do_get_param(c, args):
+    val = c.get_param(args.param_name)
+    print(val)
+
+
+def do_set_param(c, args):
+    c.get_param(args.param_name, args.param_value)
+
+
+def do_get_choices(c, args):
+    ret = c.get_choices(args.param_name)
+    print('permission: {}'.format(ret['permission']))
+    print('possible values:')
+    for c in ret['choices']:
+        print(c)
+
+
 def do_timeget(c, args):
     t = c.get_clock()
     print(t.ctime())
@@ -65,11 +89,27 @@ parser.add_argument('-a', '--address', help='Camera IP address or hostname.')
 
 subparsers = parser.add_subparsers()
 
-parser_timeget = subparsers.add_parser('shell')
-parser_timeget.set_defaults(func=do_shell)
+p = subparsers.add_parser('shell')
+p.set_defaults(func=do_shell)
 
-parser_timeget = subparsers.add_parser('time-get')
-parser_timeget.set_defaults(func=do_timeget)
+p = subparsers.add_parser('get-all-params')
+p.set_defaults(func=do_get_all_params)
+
+p = subparsers.add_parser('get-param')
+p.add_argument('param_name')
+p.set_defaults(func=do_get_param)
+
+p = subparsers.add_parser('set-param')
+p.add_argument('param_name')
+p.add_argument('param_value')
+p.set_defaults(func=do_set_param)
+
+p = subparsers.add_parser('get-choices')
+p.add_argument('param_name')
+p.set_defaults(func=do_get_choices)
+
+p = subparsers.add_parser('time-get')
+p.set_defaults(func=do_timeget)
 
 args = parser.parse_args()
 
