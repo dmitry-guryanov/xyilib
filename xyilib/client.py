@@ -19,6 +19,7 @@ import socket
 import threading
 
 import consts
+import errors
 import jsonutils
 
 
@@ -72,6 +73,9 @@ class Camera(object):
             if not q:
                 cv.wait()
             resp = q.popleft()
+
+        if resp['rval']:
+            raise errors.error_by_rval(resp['rval'])
         return resp
 
     def _receive(self):
