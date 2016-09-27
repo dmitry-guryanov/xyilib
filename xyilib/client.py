@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from collections import deque
-from datetime import datetime
 import json
 import logging
 import socket
@@ -100,10 +99,6 @@ class Camera(object):
         self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
         self.thread.join()
-
-    def get_clock(self):
-        resp = self._send_cmd(consts.YI_MSG_GET_PARAM, type='camera_clock')
-        return datetime.strptime(resp['param'], '%Y-%m-%d %H:%M:%S')
 
     def get_params(self):
         resp = self._send_cmd(consts.YI_MSG_GET_ALL_PARAMS)

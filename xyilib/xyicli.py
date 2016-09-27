@@ -74,11 +74,6 @@ def do_get_choices(c, args):
         print(c)
 
 
-def do_timeget(c, args):
-    t = c.get_clock()
-    print(t.ctime())
-
-
 name = 'Xiaomi YI'
 parser = argparse.ArgumentParser(
     description='{} camera command-line client.'.format(name))
@@ -107,9 +102,6 @@ p.set_defaults(func=do_set_param)
 p = subparsers.add_parser('get-choices')
 p.add_argument('param_name')
 p.set_defaults(func=do_get_choices)
-
-p = subparsers.add_parser('time-get')
-p.set_defaults(func=do_timeget)
 
 args = parser.parse_args()
 
