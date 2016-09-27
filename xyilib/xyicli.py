@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import argparse
+import json
 import logging
+from six.moves import input
 
 from client import Camera
 
@@ -26,6 +28,26 @@ def get_loglevel(verbosity):
     if verbosity < 0:
         return logging.ERROR
     return loglevels[verbosity]
+
+
+def do_shell(c, args):
+    while True:
+        try:
+            cmd = input('>>> ')
+        except (KeyboardInterrupt, EOFError):
+            break
+        if not cmd or cmd.isspace():
+            continue
+        try:
+            cmd = json.loads(cmd)
+        except ValueError as e:
+            print('Invalid input: {}.'.format(e))
+            continue
+        if type(cmd) != dict:
+            print('Command must be a dict.')
+            continue
+        resp = c._send_cmd(cmd)
+        print(resp)
 
 
 def do_timeget(c, args):
@@ -42,6 +64,9 @@ parser.add_argument('--verbose', '-v', action='count')
 parser.add_argument('-a', '--address', help='Camera IP address or hostname.')
 
 subparsers = parser.add_subparsers()
+
+parser_timeget = subparsers.add_parser('shell')
+parser_timeget.set_defaults(func=do_shell)
 
 parser_timeget = subparsers.add_parser('time-get')
 parser_timeget.set_defaults(func=do_timeget)
