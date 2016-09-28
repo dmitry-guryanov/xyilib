@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+import string
 
 
 class MultiReader(object):
@@ -27,7 +28,12 @@ class MultiReader(object):
         while True:
             try:
                 (obj, idx) = self.decoder.raw_decode(self.buf)
-                self.buf = self.buf[idx:]
+                try:
+                    idx += next(i for i, j in enumerate(self.buf[idx:])
+                                if j not in string.whitespace)
+                    self.buf = self.buf[idx:]
+                except StopIteration:
+                    self.buf = ''
                 objs.append(obj)
             except ValueError:
                 break
