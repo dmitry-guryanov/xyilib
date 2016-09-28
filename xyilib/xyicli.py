@@ -46,7 +46,10 @@ def do_shell(c, args):
         if type(cmd) != dict:
             print('Command must be a dict.')
             continue
-        resp = c._send_cmd(cmd)
+        if 'msg_id' not in cmd:
+            print('Command must contain msg_id.')
+        msg_id = cmd.pop('msg_id')
+        resp = c._send_cmd(msg_id, **cmd)
         print(resp)
 
 
