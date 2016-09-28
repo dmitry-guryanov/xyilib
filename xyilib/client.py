@@ -129,3 +129,13 @@ class Camera(object):
         resp = self._send_cmd(consts.YI_MSG_GET_PARAM_CHOICES,
                               param=param_name)
         return {'permission': resp['permission'], 'choices': resp['options']}
+
+    def get_space(self):
+        resp = self._send_cmd(consts.YI_MSG_GET_SPACE,
+                              type='total')
+        total = resp['param']
+
+        resp = self._send_cmd(consts.YI_MSG_GET_SPACE,
+                              type='free')
+        free = resp['param']
+        return total, free
