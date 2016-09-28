@@ -79,7 +79,7 @@ def do_get_choices(c, args):
 
 def do_get_space(c, args):
     ret = c.get_space()
-    print ret
+    print(ret)
 
 
 name = 'Xiaomi YI'
