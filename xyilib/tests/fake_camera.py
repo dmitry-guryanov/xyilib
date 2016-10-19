@@ -1,4 +1,5 @@
 
+import errno
 import json
 import socket
 import threading
@@ -58,9 +59,6 @@ class FakeCamera(object):
             for obj in objs:
                 self.handle_request(obj)
 
-        self.csock.close()
-        self.csock = None
-
     def start(self, port=9999):
         self.thread = threading.Thread(target=self._thread)
         self.thread.start()
@@ -70,11 +68,14 @@ class FakeCamera(object):
             self.csock.shutdown(socket.SHUT_RDWR)
             self.csock.close()
 
-        if self.ssock:
+        try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(('localhost', 9999))
             s.shutdown(socket.SHUT_RDWR)
             s.close()
+        except socket.error as err:
+            if err.errno != errno.ECONNREFUSED:
+                raise
 
         self.thread.join()
 
