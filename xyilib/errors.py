@@ -68,6 +68,9 @@ class InvalidPath(CameraError):
     message = 'Invalid path'
 
 
+class ConnectionClosed(CameraError):
+    message = 'Connection unexcpectedly closed'
+
 ERR_SUCCESS = 0
 ERR_FILE_NOT_FOUND = -1
 ERR_OTHER_DEVICE_CONNECTED = -3
@@ -79,6 +82,7 @@ ERR_PARAM_NOT_CHANGED = -14
 ERR_PARAM_NOT_WRITABLE = -15
 ERR_INVALID_MESSAGE_ID = -23
 ERR_INVALID_PATH = -26
+ERR_CONNECTION_CLOSED = -10000
 
 ERRORS = {
     ERR_SUCCESS: Success,
@@ -92,6 +96,7 @@ ERRORS = {
     ERR_PARAM_NOT_WRITABLE: ParamNotWritable,
     ERR_INVALID_MESSAGE_ID: InvalidMessageId,
     ERR_INVALID_PATH: InvalidPath,
+    ERR_CONNECTION_CLOSED: ConnectionClosed,
 }
 
 

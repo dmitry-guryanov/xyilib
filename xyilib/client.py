@@ -45,6 +45,7 @@ class Camera(object):
                                        name="receiver-{}".format(address))
         self.thread.start()
         self.token = None
+        self.lock = threading.Lock()
 
         try:
             self.do_auth()
@@ -65,10 +66,12 @@ class Camera(object):
 
         log.info('Send object: %r', params)
         s = json.dumps(params)
-        self.sock.send(s + '\n')
 
-        cv, q = self.msgs.setdefault(msg_id,
-                                     (threading.Condition(), deque()))
+        with self.lock:
+            self.sock.send(s + '\n')
+            cv, q = self.msgs.setdefault(msg_id,
+                                         (threading.Condition(), deque()))
+
         with cv:
             if not q:
                 cv.wait()
@@ -85,6 +88,11 @@ class Camera(object):
             s = self.sock.recv(BUFSIZE)
             if len(s) == 0:
                 log.info('[%s]: Received an empty string, terminating', name)
+                with self.lock:
+                    for cv, q in self.msgs.values():
+                        with cv:
+                            q.append({'rval': errors.ERR_CONNECTION_CLOSED})
+                            cv.notify()
                 break
 
             log.debug('[%s]: Got data: %s', name, s)
@@ -92,11 +100,12 @@ class Camera(object):
             objs = self.json_reader.push_data(s)
             for obj in objs:
                 log.info('[%s]: Got object: %r', name, obj)
-                cv, q = self.msgs.get(obj['msg_id'], (None, None))
-                if cv:
-                    with cv:
-                        q.append(obj)
-                        cv.notify()
+                with self.lock:
+                    cv, q = self.msgs.get(obj['msg_id'], (None, None))
+                    if cv:
+                        with cv:
+                            q.append(obj)
+                            cv.notify()
 
     def close(self):
         log.info("Closing connection to %s", self.address)
