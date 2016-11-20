@@ -137,6 +137,25 @@ class FakeCamera(object):
                      'type': type_,
                      'param': self.config[type_]}))
 
+        if msg_id == consts.YI_MSG_SET_PARAM:
+            if 'type' not in obj or 'param' not in obj:
+                self.csock.send(json.dumps(
+                    {'msg_id': msg_id,
+                     'rval': errors.ERR_INVALID_ARGUMENTS}))
+            type_ = obj.pop('type')
+            param = obj.pop('param')
+            if type_ not in self.config:
+                self.csock.send(json.dumps(
+                    {'msg_id': msg_id,
+                     'rval': errors.ERR_PARAM_NOT_WRITABLE}))
+            else:
+                self.config[type_] = param
+                self.csock.send(json.dumps(
+                    {'msg_id': msg_id,
+                     'rval': 0,
+                     'type': type_,
+                     'param': self.config[type_]}))
+
     def _thread(self):
         (self.csock, address) = self.ssock.accept()
         self.ssock.shutdown(socket.SHUT_RDWR)
@@ -178,7 +197,7 @@ class FakeCamera(object):
 
         self.thread.join()
 
-    def get_fake_config(self):
+    def conf(self):
         return self.config
 
 if __name__ == '__main__':

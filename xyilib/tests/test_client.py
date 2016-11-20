@@ -16,6 +16,7 @@ import logging
 import unittest
 
 from xyilib import client
+from xyilib import errors
 from xyilib.tests.fake_camera import FakeCamera
 
 PORT = 9998
@@ -36,8 +37,22 @@ class TestStringMethods(unittest.TestCase):
     def test_get_param(self):
         c = client.Camera('localhost', PORT)
         param = c.get_param('serial_number')
-        self.assertEqual(param, self.camera.get_fake_config()['serial_number'])
+        self.assertEqual(param, self.camera.conf()['serial_number'])
 
+    def test_get_param_fail(self):
+        c = client.Camera('localhost', PORT)
+        with self.assertRaises(errors.ParamNotWritable):
+            c.get_param('serial_numberx')
+
+    def test_set_param(self):
+        c = client.Camera('localhost', PORT)
+        c.set_param('serial_number', 'xyz123')
+        self.assertEqual(self.camera.conf()['serial_number'], 'xyz123')
+
+    def test_set_param_fail(self):
+        c = client.Camera('localhost', PORT)
+        with self.assertRaises(errors.ParamNotWritable):
+            c.set_param('serial_numberx', 'xyz123')
 
 if __name__ == '__main__':
     logging.basicConfig(logging.DEBUG)
