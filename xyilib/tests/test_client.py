@@ -12,24 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import unittest
 
 from xyilib import client
 from xyilib.tests.fake_camera import FakeCamera
 
+PORT = 9998
+
 
 class TestStringMethods(unittest.TestCase):
 
     def setUp(self):
-        self.camera = FakeCamera()
+        self.camera = FakeCamera(port=9998)
         self.camera.start()
 
     def tearDown(self):
         self.camera.stop()
 
     def test_auth(self):
-        client.Camera('localhost', 9999)
+        client.Camera('localhost', PORT)
+
+    def test_get_param(self):
+        c = client.Camera('localhost', PORT)
+        param = c.get_param('serial_number')
+        self.assertEqual(param, self.camera.get_fake_config()['serial_number'])
 
 
 if __name__ == '__main__':
+    logging.basicConfig(logging.DEBUG)
     unittest.main()
